@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Cirurgia Veterinária — 2ª Edição</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul-escuro: #0d2b4e;
+    --azul-medio: #1a4a7a;
+    --azul-claro: #2c6fad;
+    --azul-suave: #dceefb;
+    --azul-borda: #a8d0f0;
+    --branco: #ffffff;
+    --cinza-suave: #f4f8fd;
+    --texto: #0d2b4e;
+    --verdadeiro: #1b7a3e;
+    --verdadeiro-bg: #e6f7ed;
+    --falso: #b91c1c;
+    --falso-bg: #fde8e8;
+    --neutro: #64748b;
+    --sombra: 0 8px 32px rgba(13,43,78,0.13);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #0d2b4e 0%, #1a4a7a 50%, #2c6fad 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* ── CARD CENTRAL ── */
+  .card {
+    background: var(--branco);
+    border-radius: 20px;
+    box-shadow: var(--sombra);
+    width: 100%;
+    max-width: 720px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ── TOPO DECORATIVO ── */
+  .card-header {
+    background: linear-gradient(135deg, var(--azul-escuro), var(--azul-claro));
+    padding: 36px 40px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-header::before {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    top: -80px; right: -60px;
+  }
+  .card-header::after {
+    content: '';
+    position: absolute;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    bottom: -50px; left: -30px;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    color: #a8d4f5;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    margin-bottom: 12px;
+  }
+  .card-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    color: var(--branco);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .card-header p {
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 300;
+  }
+
+  /* ── CONTEÚDO ── */
+  .card-body {
+    padding: 36px 40px;
+  }
+
+  /* ── TELA DE IDENTIFICAÇÃO ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .form-group { margin-bottom: 22px; }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--azul-medio);
+    margin-bottom: 8px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--azul-borda);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--texto);
+    background: var(--cinza-suave);
+    transition: all 0.2s;
+    outline: none;
+  }
+  .form-group input:focus {
+    border-color: var(--azul-claro);
+    background: var(--branco);
+    box-shadow: 0 0 0 3px rgba(44,111,173,0.12);
+  }
+
+  .info-box {
+    background: var(--azul-suave);
+    border: 1px solid var(--azul-borda);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    font-size: 13.5px;
+    color: var(--azul-escuro);
+    line-height: 1.7;
+  }
+  .info-box strong { color: var(--azul-claro); }
+
+  /* ── BOTÕES ── */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--azul-escuro), var(--azul-claro));
+    color: var(--branco);
+    box-shadow: 0 4px 16px rgba(13,43,78,0.25);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,43,78,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ── TELA DE QUESTÃO ── */
+  .progress-bar-wrap {
+    background: var(--azul-suave);
+    border-radius: 8px;
+    height: 6px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--azul-claro), #4aa3e8);
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .q-num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--azul-claro);
+  }
+
+  /* ── TIMER ── */
+  .timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .timer-ring {
+    position: relative;
+    width: 48px;
+    height: 48px;
+  }
+  .timer-ring svg {
+    transform: rotate(-90deg);
+    width: 48px; height: 48px;
+  }
+  .timer-ring circle {
+    fill: none;
+    stroke-width: 3.5;
+  }
+  .timer-bg { stroke: var(--azul-suave); }
+  .timer-progress {
+    stroke: var(--azul-claro);
+    stroke-linecap: round;
+    stroke-dasharray: 126;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.5s;
+  }
+  .timer-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--azul-escuro);
+  }
+  .timer-urgente .timer-progress { stroke: #e53e3e; }
+  .timer-urgente .timer-text { color: #e53e3e; }
+
+  .q-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--texto);
+    margin-bottom: 28px;
+    min-height: 80px;
+  }
+  .secao-label {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--azul-claro);
+    background: var(--azul-suave);
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-bottom: 12px;
+  }
+
+  /* ── BOTÕES V/F ── */
+  .vf-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .btn-vf {
+    padding: 22px 12px;
+    border: 2.5px solid transparent;
+    border-radius: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--cinza-suave);
+    color: var(--neutro);
+  }
+  .btn-vf span.sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .btn-vf:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(13,43,78,0.12); }
+  .btn-vf.selected-v {
+    background: var(--verdadeiro-bg);
+    border-color: var(--verdadeiro);
+    color: var(--verdadeiro);
+    box-shadow: 0 4px 16px rgba(27,122,62,0.18);
+  }
+  .btn-vf.selected-f {
+    background: var(--falso-bg);
+    border-color: var(--falso);
+    color: var(--falso);
+    box-shadow: 0 4px 16px rgba(185,28,28,0.18);
+  }
+
+  /* ── BTN AVANÇAR ── */
+  .btn-avancar {
+    background: linear-gradient(135deg, var(--azul-escuro), var(--azul-claro));
+    color: var(--branco);
+    border: none;
+    border-radius: 12px;
+    padding: 15px 32px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .btn-avancar.enabled {
+    opacity: 1;
+    pointer-events: all;
+    box-shadow: 0 4px 16px rgba(13,43,78,0.25);
+  }
+  .btn-avancar.enabled:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13,43,78,0.3); }
+
+  /* ── TELA DE RESULTADO ── */
+  .score-circle {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-escuro), var(--azul-claro));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    box-shadow: 0 8px 32px rgba(13,43,78,0.25);
+  }
+  .score-pts {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--branco);
+    line-height: 1;
+  }
+  .score-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat-box {
+    background: var(--cinza-suave);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-box .num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .stat-box .lbl { font-size: 12px; color: var(--neutro); font-weight: 500; }
+  .stat-acertos .num { color: var(--verdadeiro); }
+  .stat-erros .num { color: var(--falso); }
+
+  .gabarito-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--azul-claro);
+    margin-bottom: 14px;
+  }
+  .gabarito-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .gabarito-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .gabarito-item.acerto { background: var(--verdadeiro-bg); }
+  .gabarito-item.erro { background: var(--falso-bg); }
+  .gabarito-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .gabarito-item strong { font-size: 11px; display: block; margin-bottom: 2px; }
+  .gabarito-item.acerto strong { color: var(--verdadeiro); }
+  .gabarito-item.erro strong { color: var(--falso); }
+  .gabarito-item span { color: var(--texto); }
+
+  /* ── STATUS ENVIANDO ── */
+  .sending-msg {
+    text-align: center;
+    font-size: 13px;
+    color: var(--neutro);
+    margin-top: 16px;
+  }
+  .dot-anim::after {
+    content: '...';
+    animation: dots 1.2s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0%,20% { content: '.'; }
+    40% { content: '..'; }
+    60%,100% { content: '...'; }
+  }
+
+  /* ── RESPONSIVO ── */
+  @media(max-width: 520px) {
+    .card-body { padding: 24px 22px; }
+    .card-header { padding: 28px 22px 22px; }
+    .card-header h1 { font-size: 21px; }
+    .q-text { font-size: 14.5px; }
+    .btn-vf { font-size: 17px; padding: 18px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <!-- CABEÇALHO -->
+  <div class="card-header">
+    <div class="badge">MEDICINA VETERINÁRIA</div>
+    <h1>Cirurgia Veterinária</h1>
+    <p>Atividade Avaliativa — 2ª Edição · Prof. Mv. José Alírio S. O. Júnior</p>
+  </div>
+
+  <div class="card-body">
+
+    <!-- TELA 1: IDENTIFICAÇÃO -->
+    <div class="screen active" id="tela-identificacao">
+      <div class="info-box">
+        📋 Esta atividade contém <strong>20 questões</strong> de Verdadeiro ou Falso.<br>
+        ⏱️ Você terá <strong>3 minutos</strong> por questão.<br>
+        🔒 <strong>Não é possível voltar</strong> a questões anteriores.<br>
+        🏆 Valor total: <strong>7,0 pontos</strong> (0,35 por questão).
+      </div>
+      <div class="form-group">
+        <label>Nome completo do aluno</label>
+        <input type="text" id="input-nome" placeholder="Digite seu nome completo..." autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="btn-iniciar" onclick="iniciarQuiz()" disabled>
+        Iniciar Atividade →
+      </button>
+    </div>
+
+    <!-- TELA 2: QUESTÃO -->
+    <div class="screen" id="tela-questao">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+
+      <div class="q-meta">
+        <span class="q-num" id="q-num-label">QUESTÃO 1 DE 20</span>
+        <div class="timer-wrap">
+          <div class="timer-ring" id="timer-ring">
+            <svg viewBox="0 0 48 48">
+              <circle class="timer-bg" cx="24" cy="24" r="20"/>
+              <circle class="timer-progress" id="timer-circle" cx="24" cy="24" r="20"/>
+            </svg>
+            <div class="timer-text" id="timer-text">3:00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="secao-label" id="q-secao"></div>
+      <div class="q-text" id="q-text"></div>
+
+      <div class="vf-wrap">
+        <button class="btn-vf" id="btn-verdadeiro" onclick="selecionarResposta(true)">
+          ✓
+          <span class="sub">Verdadeiro</span>
+        </button>
+        <button class="btn-vf" id="btn-falso" onclick="selecionarResposta(false)">
+          ✗
+          <span class="sub">Falso</span>
+        </button>
+      </div>
+
+      <button class="btn-avancar" id="btn-avancar" onclick="avancarQuestao()">
+        Avançar →
+      </button>
+    </div>
+
+    <!-- TELA 3: RESULTADO -->
+    <div class="screen" id="tela-resultado">
+      <div class="score-circle">
+        <div class="score-pts" id="res-pts">0,00</div>
+        <div class="score-label">pontos</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box stat-acertos">
+          <div class="num" id="res-acertos">0</div>
+          <div class="lbl">✓ Acertos</div>
+        </div>
+        <div class="stat-box stat-erros">
+          <div class="num" id="res-erros">0</div>
+          <div class="lbl">✗ Erros</div>
+        </div>
+      </div>
+
+      <p class="gabarito-title">DETALHAMENTO POR QUESTÃO</p>
+      <ul class="gabarito-list" id="gabarito-list"></ul>
+      <p class="sending-msg" id="sending-msg"></p>
+    </div>
+
+  </div><!-- /card-body -->
+</div><!-- /card -->
+
+<script>
+// ─── CONFIGURAÇÃO ────────────────────────────────────────────────────────────
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMNqrWegkahdbJh0qG0H79JKPPXToEH3ggkHDOY7KBUSWcjSls0ju1_weCAOlao0ZW/exec';
+const ABA = 'Verdadeiro ou falso';
+const TEMPO_POR_QUESTAO = 180; // 3 minutos em segundos
+const VALOR_TOTAL = 7.0;
+const TOTAL_QUESTOES = 20;
+const VALOR_POR_QUESTAO = VALOR_TOTAL / TOTAL_QUESTOES; // 0.35
+
+// ─── BANCO DE QUESTÕES ───────────────────────────────────────────────────────
+const questoes = [
+  // PARTE I — CAVIDADES CORPÓREAS (Q1-7)
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'Na toracotomia lateral, o acesso é realizado em decúbito lateral e permite acessar aproximadamente 1/3 da cavidade torácica lateral e do mediastino; a osteotomia de uma costela pode ampliar esse acesso em até 33%.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'Para cirurgias cardíacas que envolvam o ducto arterioso persistente e a estenose de artéria pulmonar em cães, o espaço intercostal recomendado é o mesmo para ambas as estruturas — o 4º EIC esquerdo.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'Na toracotomia lateral, a abertura da cavidade torácica deve ser realizada durante a expiração ou apneia, rompendo a pleura com bisturi ou tesoura, com cuidado para não perfurar o pulmão.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'Na síntese da toracotomia lateral, os fios utilizados para a sutura intercostal devem ter espessura mínima a partir do nº 0, podendo ser absorvíveis sintéticos (poliglactina 910 ou polidioxanona) ou inabsorvíveis sintéticos como o náilon.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'A laparotomia pelo flanco utiliza, na síntese do 1º plano, sutura contínua intradérmica com poliglactina 910 ou polidioxanona para aproximar os músculos oblíquos e transverso do abdômen.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'A laparotomia paracostal ou oblíqua é indicada para cirurgias de rim, adrenal e ovário-histerectomia (OH), sendo realizada paralelamente ao arco costal.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte I — Cavidades Corpóreas',
+    q: 'Na osteotomia tripla do púbis, a fixação do fragmento ósseo após a cirurgia é realizada com fio de polipropileno inabsorvível, por ser mais resistente à tensão que o fio de aço.',
+    gabarito: false
+  },
+  // PARTE II — HÉRNIAS (Q8-13)
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'A diástase abdominal difere da hérnia porque corresponde ao afrouxamento da musculatura reto abdominal sem ruptura da parede, não havendo, portanto, formação de anel ou saco herniário.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'Na hérnia perineal, quando há suspeita de retroflexão de bexiga, o diagnóstico é confirmado pela passagem de sonda uretral — se a bexiga estiver retroflexionada, o volume de urina obtido aumenta progressivamente após o esvaziamento.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'A hérnia perineal acomete predominantemente cães machos não castrados de meia-idade a idosos, estando frequentemente associada à hiperplasia, neoplasia ou infecção prostática, que gera disquesia e compressão do diafragma pélvico.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'Entre as complicações pós-operatórias da herniorrafia perineal, destacam-se infecção, incontinência fecal, disfunção do trato urinário, paralisia do nervo femoral e recidiva.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'Na hérnia diafragmática, o quadro agudo pode se manifestar com dispneia, posição ortopneica, taquipneia, taquicardia e mucosa cianótica, sendo a cianose consequência do acúmulo de CO₂ por compressão pulmonar.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte II — Hérnias',
+    q: 'A herniorrafia diafragmática por toracotomia é realizada pelo 9º espaço intercostal e apresenta maior facilidade na liberação de aderências pleurais e menor dor pós-operatória em relação à herniorrafia por laparotomia.',
+    gabarito: false
+  },
+  // PARTE III — SISTEMA URINÁRIO (Q14-20)
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'A pielolitotomia difere da nefrotomia por consistir em incisão específica na pelve renal e ureter proximal para remoção de cálculos, sem necessidade de incisão no parênquima renal.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Na nefrotomia, para acesso ao rim direito, o cirurgião deve afastar e isolar o cólon descendente; já para o rim esquerdo, o duodeno é a estrutura que precisa ser deslocada.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Na técnica de nefrotomia sem sutura, a hemostasia é obtida pela compressão manual por 5 minutos, permitindo que o sangue coagulado una as duas porções do rim, sendo a cápsula renal posteriormente suturada com fio absorvível sintético monofilamentar 3-0 ou 4-0 em padrão contínuo simples.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Os cálculos de cistina têm predisposição racial conhecida em Dálmatas e Bulldogs Ingleses, afetando principalmente machos de meia-idade, enquanto os cálculos de urato de amônio estão associados a desvios portossistêmicos congênitos em raças como Yorkshire Terrier e Schnauzer Miniatura.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Em ambiente com infecção por Proteus spp., a urina torna-se alcalina pela ação da urease bacteriana, o que acelera a degradação de suturas absorvíveis multifilamentares, mas não compromete suturas absorvíveis monofilamentares como PDS e Maxon, que são totalmente resistentes nesse meio.',
+    gabarito: false
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Na cistotomia em machos, a laparotomia retro-umbilical deve ser estendida lateralmente ao prepúcio para evitar lesão das ramificações da artéria e veia pudenda externa.',
+    gabarito: true
+  },
+  {
+    secao: 'Parte III — Sistema Urinário',
+    q: 'Na cistotomia, a sutura invaginante de primeira linha (padrão Cushing) inclui todas as camadas da parede vesical, incluindo a mucosa, garantindo maior resistência à tensão intraluminal.',
+    gabarito: false
+  }
+];
+// ─── ESTADO ──────────────────────────────────────────────────────────────────
+let nomeAluno = '';
+let questaoAtual = 0;
+let respostas = [];        // true/false/null (sem resposta)
+let respostaSelecionada = null;
+let timerInterval = null;
+let tempoRestante = TEMPO_POR_QUESTAO;
+let quizAtivo = false;
+
+// ─── IDENTIFICAÇÃO ────────────────────────────────────────────────────────────
+document.getElementById('input-nome').addEventListener('input', function() {
+  document.getElementById('btn-iniciar').disabled = this.value.trim().length < 3;
+});
+document.getElementById('input-nome').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && this.value.trim().length >= 3) iniciarQuiz();
+});
+
+function iniciarQuiz() {
+  nomeAluno = document.getElementById('input-nome').value.trim();
+  if (nomeAluno.length < 3) return;
+  quizAtivo = true;
+  mostrarTela('tela-questao');
+  carregarQuestao(0);
+}
+
+// ─── NAVEGAÇÃO DE TELAS ───────────────────────────────────────────────────────
+function mostrarTela(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ─── QUESTÃO ──────────────────────────────────────────────────────────────────
+function carregarQuestao(idx) {
+  questaoAtual = idx;
+  respostaSelecionada = null;
+
+  const q = questoes[idx];
+  document.getElementById('q-num-label').textContent = `QUESTÃO ${idx + 1} DE ${TOTAL_QUESTOES}`;
+  document.getElementById('q-secao').textContent = q.secao;
+  document.getElementById('q-text').textContent = q.q;
+
+  // Barra de progresso
+  document.getElementById('progress-bar').style.width = `${(idx / TOTAL_QUESTOES) * 100}%`;
+
+  // Botões V/F
+  const bV = document.getElementById('btn-verdadeiro');
+  const bF = document.getElementById('btn-falso');
+  bV.className = 'btn-vf';
+  bF.className = 'btn-vf';
+
+  // Botão avançar
+  const bA = document.getElementById('btn-avancar');
+  bA.classList.remove('enabled');
+
+  // Timer
+  iniciarTimer();
+}
+
+function selecionarResposta(valor) {
+  respostaSelecionada = valor;
+  document.getElementById('btn-verdadeiro').className = valor === true ? 'btn-vf selected-v' : 'btn-vf';
+  document.getElementById('btn-falso').className = valor === false ? 'btn-vf selected-f' : 'btn-vf';
+  document.getElementById('btn-avancar').classList.add('enabled');
+}
+
+function avancarQuestao() {
+  // Registrar resposta (null se não respondeu — não deve ocorrer pois btn fica desabilitado)
+  respostas.push(respostaSelecionada);
+  pararTimer();
+
+  if (questaoAtual + 1 < TOTAL_QUESTOES) {
+    carregarQuestao(questaoAtual + 1);
+  } else {
+    finalizarQuiz();
+  }
+}
+
+// ─── TIMER ────────────────────────────────────────────────────────────────────
+function iniciarTimer() {
+  tempoRestante = TEMPO_POR_QUESTAO;
+  atualizarTimerUI();
+  timerInterval = setInterval(() => {
+    tempoRestante--;
+    atualizarTimerUI();
+    if (tempoRestante <= 0) {
+      pararTimer();
+      // Tempo esgotado: registra null e avança
+      respostas.push(null);
+      if (questaoAtual + 1 < TOTAL_QUESTOES) {
+        carregarQuestao(questaoAtual + 1);
+      } else {
+        finalizarQuiz();
+      }
+    }
+  }, 1000);
+}
+
+function pararTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function atualizarTimerUI() {
+  const min = Math.floor(tempoRestante / 60);
+  const seg = tempoRestante % 60;
+  document.getElementById('timer-text').textContent = `${min}:${seg.toString().padStart(2,'0')}`;
+
+  const circunferencia = 126; // 2π×20
+  const offset = circunferencia * (1 - tempoRestante / TEMPO_POR_QUESTAO);
+  document.getElementById('timer-circle').style.strokeDashoffset = offset;
+
+  const ring = document.getElementById('timer-ring');
+  if (tempoRestante <= 30) {
+    ring.classList.add('timer-urgente');
+  } else {
+    ring.classList.remove('timer-urgente');
+  }
+}
+
+// ─── FINALIZAÇÃO ──────────────────────────────────────────────────────────────
+function finalizarQuiz() {
+  quizAtivo = false;
+  pararTimer();
+
+  let acertos = 0;
+  questoes.forEach((q, i) => {
+    if (respostas[i] === q.gabarito) acertos++;
+  });
+  const erros = TOTAL_QUESTOES - acertos;
+  const pontuacao = (acertos * VALOR_POR_QUESTAO).toFixed(2);
+
+  // UI resultado
+  document.getElementById('res-pts').textContent = pontuacao.replace('.', ',');
+  document.getElementById('res-acertos').textContent = acertos;
+  document.getElementById('res-erros').textContent = erros;
+
+  // Barra de progresso 100%
+  document.getElementById('progress-bar').style.width = '100%';
+
+  // Gabarito detalhado
+  const lista = document.getElementById('gabarito-list');
+  lista.innerHTML = '';
+  questoes.forEach((q, i) => {
+    const acertou = respostas[i] === q.gabarito;
+    const sem = respostas[i] === null;
+    const li = document.createElement('li');
+    li.className = `gabarito-item ${acertou ? 'acerto' : 'erro'}`;
+    const respostaTexto = sem ? 'Sem resposta (tempo esgotado)' :
+                          respostas[i] ? 'Verdadeiro' : 'Falso';
+    const gabTexto = q.gabarito ? 'Verdadeiro' : 'Falso';
+    li.innerHTML = `
+      <span class="gabarito-icon">${acertou ? '✓' : '✗'}</span>
+      <div>
+        <strong>Q${i+1} — Sua resposta: ${respostaTexto} | Gabarito: ${gabTexto}</strong>
+        <span>${q.q.substring(0, 100)}${q.q.length > 100 ? '...' : ''}</span>
+      </div>`;
+    lista.appendChild(li);
+  });
+
+  mostrarTela('tela-resultado');
+
+  // Enviar ao Google Sheets
+  enviarResultado(acertos, erros, pontuacao);
+}
+
+// ─── INTEGRAÇÃO GOOGLE SHEETS ─────────────────────────────────────────────────
+function enviarResultado(acertos, erros, pontuacao) {
+  const agora = new Date();
+  const data = agora.toLocaleDateString('pt-BR');
+  const hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+  const sendMsg = document.getElementById('sending-msg');
+  if (sendMsg) {
+    sendMsg.innerHTML = '<span class="dot-anim">Enviando resultado ao professor</span>';
+  }
+
+  // Google Apps Script com no-cors só aceita GET com params na URL
+  // ou POST com FormData — JSON body é bloqueado pelo browser nesse modo
+  const params = new URLSearchParams({
+    aba:       ABA,
+    nome:      nomeAluno,
+    pontuacao: String(pontuacao),
+    acertos:   String(acertos),
+    erros:     String(erros),
+    data:      data,
+    horario:   hora
+  });
+
+  const urlComParams = GOOGLE_SCRIPT_URL + '?' + params.toString();
+
+  fetch(urlComParams, { method: 'GET', mode: 'no-cors' })
+    .then(() => {
+      if (sendMsg) sendMsg.textContent = '✓ Resultado enviado ao professor com sucesso.';
+    })
+    .catch(() => {
+      // Fallback: POST com FormData
+      const fd = new FormData();
+      fd.append('aba',       ABA);
+      fd.append('nome',      nomeAluno);
+      fd.append('pontuacao', String(pontuacao));
+      fd.append('acertos',   String(acertos));
+      fd.append('erros',     String(erros));
+      fd.append('data',      data);
+      fd.append('horario',   hora);
+      fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd })
+        .then(() => {
+          if (sendMsg) sendMsg.textContent = '✓ Resultado enviado ao professor com sucesso.';
+        })
+        .catch(() => {
+          if (sendMsg) sendMsg.textContent = '⚠️ Não foi possível enviar o resultado. Informe ao professor.';
+        });
+    });
+}
+
+
+</script>
+</body>
+</html>
